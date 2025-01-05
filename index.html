@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Screen Fit Text</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+
+      html,
+      body {
+        background: black;
+      }
+
+      #wrapper {
+        display: grid;
+        place-items: center;
+        width: 100dvw;
+        height: 100dvh;
+      }
+      #text {
+        color: white;
+        font-size: var(--font-size, 0);
+        line-height: 1;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrapper">
+      <pre id="text" contenteditable="true"></pre>
+    </div>
+  </body>
+  <script>
+    const pre = document.getElementById("text");
+
+    const countGrapheme = (str) => {
+      const segmenter = new Intl.Segmenter("ja", { granularity: "grapheme" });
+      return [...segmenter.segment(str)].length;
+    };
+
+    const setFontSize = (text) => {
+      const lengths = text.split("\n").map(countGrapheme);
+      const lines = lengths.length;
+      const chars = Math.max(...lengths);
+
+      if (lines === 0 || chars === 0) {
+        pre.style.setProperty("--font-size", "0");
+      } else {
+        pre.style.setProperty(
+          "--font-size",
+          `min(100dvw / ${chars}, 80dvh / ${lines})`
+        );
+      }
+    };
+
+    window.addEventListener("load", () => {
+      const text =
+        new URLSearchParams(window.location.search).get("text") ?? "text";
+      pre.innerText = text;
+      setFontSize(text);
+    });
+    pre.addEventListener("input", (e) => {
+      const text = e.currentTarget.innerText;
+      setFontSize(text);
+    });
+    pre.addEventListener("focusout", (e) => {
+      const text = e.currentTarget.innerText;
+      window.location.search = new URLSearchParams({ text }).toString();
+      setFontSize(text);
+    });
+  </script>
+</html>
