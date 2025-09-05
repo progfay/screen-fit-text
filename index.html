@@ -69,7 +69,7 @@
     });
     pre.addEventListener("focusout", (e) => {
       const text = e.currentTarget.innerText;
-      window.location.search = new URLSearchParams({ text }).toString();
+      window.history.replaceState(window.history.state, "", `?${new URLSearchParams({ text })}`);
       setFontSize(text);
     });
   </script>
